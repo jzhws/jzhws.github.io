@@ -5,26 +5,44 @@ const search = document.getElementById('publication-search');
 const authorship = document.getElementById('authorship');
 const count = document.getElementById('result-count');
 const dialog = document.getElementById('bibtex-dialog');
+const languageButton = document.querySelector('.language-toggle');
+const themeButton = document.querySelector('.theme-toggle');
 let venue = 'all';
+let language = 'en';
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const external = (url, label) => `<a href="${esc(url)}" target="_blank" rel="noopener noreferrer">${label}</a>`;
+
+function t(key, values = {}) {
+ let result = messages[language][key] ?? messages.en[key] ?? key;
+ for (const [name, value] of Object.entries(values)) result = result.replaceAll(`{${name}}`, String(value));
+ return result;
+}
+function localizedPublication(p) {
+ return language === 'zh' ? { ...p, ...chinesePublications[p.id] } : p;
+}
 function render() {
  const q = search.value.trim().toLowerCase();
- const selected = publications.filter(p => (venue === 'all' || (venue === 'journal' ? p.venue === 'IEEE TCSVT' : p.venue === venue)) && (authorship.value === 'all' || (authorship.value === 'lead' ? p.role !== 'second' : p.role === 'second')) && `${p.title} ${p.authors.join(' ')} ${p.venue} ${p.year}`.toLowerCase().includes(q));
- count.textContent = `${selected.length} of ${publications.length} selected publications`;
+ const selected = publications.filter(p =>
+  (venue === 'all' || (venue === 'journal' ? p.venue === 'IEEE TCSVT' : p.venue === venue)) &&
+  (authorship.value === 'all' || (authorship.value === 'lead' ? p.role !== 'second' : p.role === 'second')) &&
+  `${p.title} ${chinesePublications[p.id]?.title ?? ''} ${p.authors.join(' ')} ${p.venue} ${p.year}`.toLowerCase().includes(q)
+ );
+ count.textContent = t('pub.count', {shown:selected.length, total:publications.length});
  let year = null;
  list.innerHTML = selected.map(p => {
+  const localized = localizedPublication(p);
   const heading = year !== p.year ? `<h3 class="pub-year">${p.year}</h3>` : '';
   year = p.year;
   const authors = p.authors.map(a => `${a === 'Ziheng Jia' ? `<strong>${esc(a)}</strong>` : esc(a)}${p.equal.includes(a) ? '<sup>*</sup>' : ''}`).join(', ');
-  const role = {first:'First author',cofirst:'Co-first author',second:'Second author'}[p.role];
+  const role = t({first:'pub.firstRole',cofirst:'pub.cofirstRole',second:'pub.secondRole'}[p.role]);
+  const award = p.award ? t(p.award === 'Oral' ? 'pub.oral' : 'pub.spotlight') : '';
   return `${heading}<article class="publication" aria-labelledby="title-${p.id}">
-  <a class="pub-image" href="${esc(p.url)}" target="_blank" rel="noopener noreferrer" aria-label="Read ${esc(p.title)}"><img src="assets/${esc(p.image)}" alt="${esc(p.title)} — ${p.image.endsWith('.svg') ? 'concept illustration' : 'paper overview'}" loading="lazy" width="185" height="133"></a>
-  <div><h4 class="pub-title" id="title-${p.id}">${external(p.url,esc(p.title))}</h4><p class="authors">${authors}</p>
-  <p class="venue-line"><span class="venue">${esc(p.venue)} ${p.year}</span>${p.award ? `<span class="badge spotlight">${esc(p.award)}</span>` : ''}<span class="badge">${role}</span></p>
-  <p class="pub-summary">${esc(p.summary)}</p>
-  <div class="pub-links">${external(p.url,'Paper ↗')}${p.arxiv ? external('https://arxiv.org/pdf/'+p.arxiv,'PDF ↗') : ''}${p.code ? external(p.code,'Code ↗') : ''}<button type="button" data-bib="${p.id}" aria-label="Show BibTeX for ${esc(p.title)}">BibTeX</button></div></div></article>`;
- }).join('') || '<p class="empty-state">No matching publications. <button type="button" class="reset-button" id="reset-filters">Clear filters</button></p>';
+  <a class="pub-image" href="${esc(p.url)}" target="_blank" rel="noopener noreferrer" aria-label="${esc(t('pub.read',{title:localized.title}))}"><img src="assets/${esc(p.image)}" alt="${esc(localized.title)} — ${esc(t(p.image.endsWith('.svg') ? 'pub.illustration' : 'pub.overview'))}" loading="lazy" width="185" height="133"></a>
+  <div><h4 class="pub-title" id="title-${p.id}">${external(p.url,esc(localized.title))}</h4>${language === 'zh' ? `<p class="pub-original-title" lang="en">${esc(p.title)}</p>` : ''}<p class="authors" lang="en">${authors}</p>
+  <p class="venue-line"><span class="venue">${esc(p.venue)} ${p.year}</span>${p.award ? `<span class="badge spotlight">${esc(award)}</span>` : ''}<span class="badge">${role}</span></p>
+  <p class="pub-summary">${esc(localized.summary)}</p>
+  <div class="pub-links">${external(p.url,t('pub.paper'))}${p.arxiv ? external('https://arxiv.org/pdf/'+p.arxiv,t('pub.pdf')) : ''}${p.code ? external(p.code,t('pub.code')) : ''}<button type="button" data-bib="${p.id}" aria-label="${esc(t('pub.bibLabel',{title:localized.title}))}">BibTeX</button></div></div></article>`;
+ }).join('') || `<p class="empty-state">${t('pub.empty')} <button type="button" class="reset-button" id="reset-filters">${t('pub.reset')}</button></p>`;
  document.getElementById('reset-filters')?.addEventListener('click', reset);
 }
 function reset() { search.value=''; authorship.value='all'; setVenue('all'); }
@@ -32,25 +50,66 @@ function setVenue(v) { venue=v; document.querySelectorAll('[data-filter]').forEa
 search.addEventListener('input', render);
 authorship.addEventListener('change', render);
 document.querySelectorAll('[data-filter]').forEach(b=>b.addEventListener('click',()=>setVenue(b.dataset.filter)));
+
 list.addEventListener('click', e => {
  const button = e.target.closest('[data-bib]'); if(!button)return;
  const p=publications.find(p=>p.id===button.dataset.bib);
  document.getElementById('bibtex-content').textContent=p.bibtex;
  document.getElementById('copy-status').textContent='';
- document.getElementById('copy-bibtex').textContent='Copy citation';
+ document.getElementById('copy-bibtex').textContent=t('bib.copy');
  dialog.showModal();
 });
 document.getElementById('close-dialog').addEventListener('click',()=>dialog.close());
 dialog.addEventListener('click',e=>{ if(e.target===dialog){ const r=dialog.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)dialog.close(); }});
 document.getElementById('copy-bibtex').addEventListener('click',async()=>{
  const content=document.getElementById('bibtex-content');
- try {await navigator.clipboard.writeText(content.textContent);document.getElementById('copy-bibtex').textContent='Copied ✓';document.getElementById('copy-status').textContent='Citation copied.';}
- catch { const range=document.createRange();range.selectNodeContents(content);getSelection().removeAllRanges();getSelection().addRange(range);document.getElementById('copy-status').textContent='Select and copy the citation above.'; }
+ try {await navigator.clipboard.writeText(content.textContent);document.getElementById('copy-bibtex').textContent=t('bib.copiedButton');document.getElementById('copy-status').textContent=t('bib.copiedStatus');}
+ catch { const range=document.createRange();range.selectNodeContents(content);getSelection().removeAllRanges();getSelection().addRange(range);document.getElementById('copy-status').textContent=t('bib.fallback'); }
 });
-const themeButton=document.querySelector('.theme-toggle');
-function applyTheme(theme){document.documentElement.dataset.theme=theme;themeButton.setAttribute('aria-label',`Switch to ${theme==='dark'?'light':'dark'} theme`);themeButton.setAttribute('aria-pressed',String(theme==='dark'));}
-try{applyTheme(localStorage.getItem('zj-theme')||'light');}catch{applyTheme('light');}
+
+function applyTheme(theme){
+ document.documentElement.dataset.theme=theme;
+ const label=t(theme==='dark'?'theme.light':'theme.dark');
+ themeButton.setAttribute('aria-label',label);
+ themeButton.title=label;
+ themeButton.setAttribute('aria-pressed',String(theme==='dark'));
+}
+try{applyTheme(localStorage.getItem('zj-theme')==='dark'?'dark':'light');}catch{applyTheme('light');}
 themeButton.addEventListener('click',()=>{const theme=document.documentElement.dataset.theme==='dark'?'light':'dark';applyTheme(theme);try{localStorage.setItem('zj-theme',theme);}catch{}});
+
+function setLanguage(next, {persist=true, updateUrl=true} = {}) {
+ language = next === 'zh' ? 'zh' : 'en';
+ document.documentElement.lang = language === 'zh' ? 'zh-CN' : 'en';
+ document.querySelectorAll('[data-i18n]').forEach(element => {
+  element.innerHTML = t(element.dataset.i18n);
+ });
+ for (const attr of ['aria-label','placeholder','content','alt']) {
+  document.querySelectorAll(`[data-i18n-${attr}]`).forEach(element=>{
+   element.setAttribute(attr,t(element.getAttribute(`data-i18n-${attr}`)));
+  });
+ }
+ languageButton.textContent=language==='en'?'中文':'EN';
+ languageButton.lang=language==='en'?'zh-CN':'en';
+ languageButton.setAttribute('aria-label',t('language.switch'));
+ languageButton.title=t('language.switch');
+ document.getElementById('copy-status').textContent='';
+ applyTheme(document.documentElement.dataset.theme);
+ render();
+ if(persist){try{localStorage.setItem('zj-language',language);}catch{}}
+ if(updateUrl){
+  const url=new URL(window.location.href);
+  url.searchParams.set('lang',language);
+  history.replaceState(null,'',url);
+ }
+}
+function preferredLanguage() {
+ const requested=new URLSearchParams(window.location.search).get('lang');
+ if(requested==='en'||requested==='zh')return requested;
+ try{return localStorage.getItem('zj-language')==='zh'?'zh':'en';}catch{return 'en';}
+}
+languageButton.addEventListener('click',()=>setLanguage(language==='en'?'zh':'en'));
+window.addEventListener('popstate',()=>setLanguage(preferredLanguage(),{updateUrl:false}));
+
 const observer=new IntersectionObserver(entries=>{for(const e of entries){if(e.isIntersecting){document.querySelectorAll('nav a').forEach(a=>a.classList.toggle('active',a.hash==='#'+e.target.id));}}},{rootMargin:'-10% 0px -65% 0px'});
 document.querySelectorAll('main>section').forEach(s=>observer.observe(s));
-render();
+setLanguage(preferredLanguage(),{updateUrl:false});

@@ -2,3 +2,10 @@
 @media(max-width:760px){.section-heading{display:block}.section-heading .section-title{margin-bottom:7px}.scholar-link{display:inline-block;margin-bottom:8px}.pub-toolbar{align-items:stretch}.pub-toolbar .search-wrap{flex-basis:100%}.pub-toolbar select{width:100%}}
 
 .profile-photo{display:block;width:166px;height:166px;object-fit:cover;object-position:center 20%;border-radius:50%;border:1px solid var(--line);margin-bottom:25px}.opportunity{margin-top:20px!important}.opportunity strong{color:var(--accent)}@media(max-width:760px){.profile-photo{width:90px;height:90px;margin:0;grid-row:1/5}}
+
+.language-toggle{flex-shrink:0;min-width:40px;padding:3px 8px;border:1px solid var(--line);border-radius:16px;background:var(--paper);color:var(--ink);font-size:11px;line-height:1.8}.language-toggle:hover{border-color:var(--accent);color:var(--accent)}
+.institution-mark{padding:3px;background:#fff;border-color:var(--line);overflow:hidden}.institution-mark img{display:block;width:100%;height:100%;object-fit:contain}
+.pub-original-title{margin:-2px 0 8px;font-size:11px;line-height:1.6;color:var(--muted)}
+html[lang=zh-CN] body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei","Noto Sans CJK SC",sans-serif;line-height:1.85}html[lang=zh-CN] .intro-kicker,html[lang=zh-CN] .eyebrow{letter-spacing:1px}html[lang=zh-CN] .intro-title em{margin-left:.1em}html[lang=zh-CN] .pub-title{line-height:1.6}
+@media(max-width:760px){nav{gap:10px}.language-toggle{padding:2px 7px;min-width:36px}}
+@media(max-width:360px){.header-inner{padding:0 16px}.wordmark{font-size:18px}nav{gap:7px}}
