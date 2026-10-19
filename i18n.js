@@ -1,7 +1,7 @@
 // Static translations use trusted, repository-owned HTML for emphasis and links.
 const messages = {
   "en": {
-    "about.research": "My research focuses on <strong>visual quality assessment</strong>, <strong>large multimodal models</strong>, and <strong>large model evaluation</strong>. I study how multimodal models perceive, explain, and reason about the quality of images and videos, with an emphasis on pre-training and post-training, including reinforcement fine-tuning. I also develop benchmarks and evaluation methods to assess the capabilities and limitations of large models.",
+    "about.research": "My research focuses on <strong class=\"research-focus\">LMM pre-training and post-training for visual quality assessment</strong> and <strong class=\"research-focus\">LLM evaluation</strong>.",
     "about.opportunity": "<strong>I am currently seeking research internship opportunities.</strong> Please feel free to <a href=\"https://github.com/jzhws\" target=\"_blank\" rel=\"noopener noreferrer\">connect with me</a> if you are interested in my research or would like to explore potential collaborations.",
     "news.aaai": "<span class=\"news-symbol\">✦</span> <a href=\"https://github.com/jzhws/VisualQualityAssessment-RL-Trainer\">Refine-IQA</a> and <a href=\"https://github.com/jzhws/Omni-VQA\">Omni-VQA</a> (<strong>Oral</strong>) accepted to <strong>AAAI 2026</strong>.",
     "pub.noscript": "JavaScript is disabled. The complete publication list and citations are available in <a href=\"publications.bib\">BibTeX</a> or on <a href=\"https://scholar.google.com/citations?user=JYqad5sAAAAJ&amp;hl=en\">Google Scholar</a>.",
@@ -90,7 +90,7 @@ const messages = {
     "language.switch": "Switch to Chinese"
   },
   "zh": {
-    "about.research": "我的研究主要围绕<strong>视觉质量评价</strong>、<strong>多模态大模型</strong>和<strong>大模型评测</strong>展开。我关注多模态模型如何感知、解释和推理图像与视频的质量，重点探索预训练与后训练方法，包括强化微调。同时，我也构建基准和评测方法，以衡量大模型的能力与局限。",
+    "about.research": "我的研究关注于 <strong class=\"research-focus\">LMM 预训练 / 后训练（与视觉质量评价相关）</strong>以及 <strong class=\"research-focus\">LLM 评测</strong>。",
     "about.opportunity": "<strong>我正在寻找科研实习机会。</strong>如果您对我的研究感兴趣，或希望探讨合作机会，欢迎<a href=\"https://github.com/jzhws\" target=\"_blank\" rel=\"noopener noreferrer\">与我联系</a>。",
     "news.aaai": "<span class=\"news-symbol\">✦</span> <a href=\"https://github.com/jzhws/VisualQualityAssessment-RL-Trainer\">Refine-IQA</a> 和 <a href=\"https://github.com/jzhws/Omni-VQA\">Omni-VQA</a> 被 <strong>AAAI 2026</strong> 接收，其中 Omni-VQA 获选为<strong>口头报告</strong>。",
     "pub.noscript": "JavaScript 已禁用。完整论文列表与引用信息可在 <a href=\"publications.bib\">BibTeX 文件</a>或<a href=\"https://scholar.google.com/citations?user=JYqad5sAAAAJ&amp;hl=en\">谷歌学术</a>中查看。",
